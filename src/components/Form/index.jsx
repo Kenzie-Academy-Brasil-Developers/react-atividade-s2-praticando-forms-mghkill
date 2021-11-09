@@ -51,8 +51,8 @@ const Form = ({ setAllowed, setFormValue }) => {
     history.push("/card");
   };
   return (
-    <div>
-      <h3>Página de cadastro</h3>
+    <div className="form">
+      <h1>Página de cadastro</h1>
       <form onSubmit={handleSubmit(handleRegister)}>
         <input placeholder="Nome de usuário*" {...register("user")} />
         <div className="form__erro">{errors.user?.message}</div>
