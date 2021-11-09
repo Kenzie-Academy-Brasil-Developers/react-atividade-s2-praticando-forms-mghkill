@@ -11,7 +11,9 @@ const Form = ({ setAllowed, setFormValue }) => {
     user: yup
       .string()
       .required("User obrigatório")
-      .max(18, "Máximo 18 caracters"),
+      .max(18, "Máximo 18 caracters")
+      .min(6, "Mínimo 8 caracters"),
+
     name: yup.string().required("Nome obrigatório"),
     email: yup.string().required("Email obrigatório").email(),
     checkemail: yup
