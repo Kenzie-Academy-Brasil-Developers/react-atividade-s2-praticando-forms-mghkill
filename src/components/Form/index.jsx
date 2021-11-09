@@ -2,51 +2,95 @@ import "./styles.css";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useHistory } from "react-router";
 
-const Form = () => {
-  //   const formSchema = yup.object().shape({
-  //     name: yup.stryng().required("Email obrigatório").email("E-mail inválido"),
-  //     confirmName: yup
-  //       .stryng()
-  //       .required("Email obrigatório")
-  //       .email("E-mail inválido"),
+const Form = ({ setAllowed, setFormValue }) => {
+  const history = useHistory();
 
-  //     email: yup.stryng().required("Obrigatório").email(),
-  //     confirmEmail: yup
-  //       .stryng()
-  //       .email()
-  //       .oneOf([yup.ref("email"), null], "msg"),
-  //   });
-  const { register, handleSubmit } = useForm();
+  const formSchema = yup.object().shape({
+    user: yup
+      .string()
+      .required("User obrigatório")
+      .max(18, "Máximo 18 caracters"),
+    name: yup.string().required("Nome obrigatório"),
+    email: yup.string().required("Email obrigatório").email(),
+    checkemail: yup
+      .string()
+      .required("Confirmação obrigatória")
+      .email()
+      .oneOf([yup.ref("email")], "Emails não são iguais!"),
 
-  const onSubmitFunction = (date) => {
-    console.log(date);
+    password: yup
+      .string()
+      .required("Senha obrigatório")
+      .matches(
+        /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/,
+        "Maiúsculas, minúsculas, especiais %$#@%, 8 caracters +"
+      ),
+
+    checkpassword: yup
+      .string()
+      .required("Confirmação obrigatória")
+      .oneOf([yup.ref("password")], "Senhas não são iguais!"),
+    terms: yup
+      .boolean()
+      .oneOf([true], "É necessário aceitar os termos para continuar"),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(formSchema),
+  });
+
+  const handleRegister = (event) => {
+    setAllowed(true);
+    setFormValue(event);
+    history.push("/card");
   };
   return (
     <div>
       <h3>Página de cadastro</h3>
-      <form className="form" onSubmit={() => handleSubmit(onSubmitFunction)}>
-        <input placeholder="Nome de usuário *" {...register("name")} />
-        <input placeholder="Nome completo *" {...register("confirmName")} />
+      <form onSubmit={handleSubmit(handleRegister)}>
+        <input placeholder="Nome de usuário*" {...register("user")} />
+        <div className="form__erro">{errors.user?.message}</div>
 
-        <input placeholder="Email *" {...register("email")} />
-        <input placeholder="Confirmar Email *" {...register("confirmEmail")} />
+        <input placeholder="Nome completo*" {...register("name")} />
+        <div className="form__erro">{errors.name?.message}</div>
+
+        <input placeholder="Endereço de Email*" {...register("email")} />
+        <div className="form__erro">{errors.email?.message}</div>
+
+        <input placeholder="Confirme seu Email*" {...register("checkemail")} />
+        <div className="form__erro">{errors.checkemail?.message}</div>
 
         <div className="form__password">
           <input
-            placeholder="Senha *"
+            placeholder="Senha"
             type="password"
             {...register("password")}
           />
           <input
-            placeholder="Confirmar senha *"
-            {...register("confirm-password")}
+            placeholder="Repetir Senha"
+            type="password"
+            {...register("checkpassword")}
           />
         </div>
 
-        <input type="checkbox" {...register("check")} />
+        <div className="form__erro">{errors.password?.message}</div>
 
-        <button type="submit">Enviar</button>
+        <div className="form__erro">{errors.checkpassword?.message}</div>
+
+        <div className="form__checkbox">
+          <input id="terms" type="checkbox" {...register("terms")} />
+          <label htmlFor="terms">Eu aceito os termos desta aplicação</label>
+        </div>
+
+        <div className="form__erro">{errors.terms?.message}</div>
+
+        <button type="submit">Register</button>
       </form>
     </div>
   );
